@@ -36,6 +36,22 @@ def init_db():
     conn.close()
 
 
+def create_user(name, email, password):
+    from werkzeug.security import generate_password_hash
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+            (name, email, generate_password_hash(password)),
+        )
+        conn.commit()
+        return conn.execute(
+            "SELECT id FROM users WHERE email = ?", (email,)
+        ).fetchone()["id"]
+    finally:
+        conn.close()
+
+
 def seed_db():
     from werkzeug.security import generate_password_hash
 
